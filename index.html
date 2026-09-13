@@ -3,247 +3,866 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeetFriends - Professional Social & Chat</title>
+  <title>MeetFriends</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #0b0f19; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; }
+    body { background: #0f1016; color: #f5f5f7; padding-bottom: 30px; -webkit-tap-highlight-color: transparent; }
+    header { background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%); color: white; padding: 16px; text-align: center; font-size: 22px; font-weight: 800; letter-spacing: 1px; box-shadow: 0 4px 20px rgba(255, 8, 68, 0.35); }
+    .container { max-width: 460px; margin: 0 auto; padding: 16px; }
     
-    header { background: linear-gradient(135deg, #f43f5e, #be123c); padding: 16px; text-align: center; font-size: 22px; font-weight: bold; color: white; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); display: flex; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px; }
-    header .logo-text { letter-spacing: 0.5px; }
-    header .header-icons { font-size: 18px; cursor: pointer; }
+    /* સ્ટોરીઝ સેક્શન */
+    .stories-wrap { display: flex; gap: 14px; overflow-x: auto; padding: 4px 4px 14px 4px; scrollbar-width: none; }
+    .stories-wrap::-webkit-scrollbar { display: none; }
+    .story-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
+    .story-ring { width: 66px; height: 66px; border-radius: 50%; padding: 2.5px; background: linear-gradient(45deg, #f09433, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); display: flex; align-items: center; justify-content: center; position: relative; }
+    .story-ring.my-story-ring { background: rgba(255,255,255,0.2); }
+    .story-ring img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 2px solid #0f1016; }
+    .story-ring .add-badge { position: absolute; bottom: 0; right: 0; width: 22px; height: 22px; background: #0084ff; border-radius: 50%; border: 2px solid #0f1016; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; color: white; }
+    .story-name { font-size: 11px; color: #cfd3dc; max-width: 66px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
 
-    .main-wrapper { max-width: 500px; width: 100%; margin: 0 auto; padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
-
-    /* Stories Strip */
-    .stories-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
-    .stories-wrapper::-webkit-scrollbar { display: none; }
-    .story-card { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
-    .story-circle { width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(45deg, #f43f5e, #fb7185, #38bdf8); padding: 2.5px; display: flex; align-items: center; justify-content: center; }
-    .story-inner { width: 100%; height: 100%; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 2px solid #0b0f19; overflow: hidden; }
-    .story-inner img { width: 100%; height: 100%; object-fit: cover; }
-    .story-title { font-size: 12px; color: #cbd5e1; max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
-
-    /* Card Panels */
-    .panel { background: #1e293b; border-radius: 18px; padding: 22px; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-    .panel-title { font-size: 20px; font-weight: bold; color: #fb7185; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
-
-    .input-group { margin-bottom: 16px; }
-    .input-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+    .card { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 18px; backdrop-filter: blur(12px); box-shadow: 0 8px 30px rgba(0,0,0,0.4); padding: 18px; margin-bottom: 20px; }
+    h2 { font-size: 18px; margin-bottom: 14px; color: #ff5e7e; font-weight: 700; }
     
-    input[type="text"], input[type="number"], select, textarea {
-      width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 15px; outline: none; transition: border-color 0.2s;
+    input, textarea, select { width: 100%; padding: 12px 14px; margin-top: 10px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; font-size: 15px; color: #fff; outline: none; }
+    input::placeholder, textarea::placeholder { color: #8a8d9b; }
+    select option { background: #1a1b24; color: white; }
+    
+    button { width: 100%; padding: 12px; margin-top: 14px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+    .primary-btn { background: linear-gradient(135deg, #ff0844 0%, #ff4b72 100%); color: white; box-shadow: 0 4px 15px rgba(255, 8, 68, 0.4); }
+    .primary-btn:active { transform: scale(0.98); }
+
+    #userBar { display: none; justify-content: space-between; align-items: center; background: rgba(255, 8, 68, 0.15); border: 1px solid rgba(255, 8, 68, 0.3); border-radius: 14px; padding: 12px 16px; margin-bottom: 18px; }
+    .user-badge { display: flex; align-items: center; gap: 10px; position: relative; }
+    .user-badge img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid #ff0844; }
+    .user-badge span { font-weight: 600; color: #ff85a1; font-size: 15px; }
+    .bar-actions { display: flex; gap: 8px; }
+    .edit-btn { background: #ff0844; color: white; width: auto; padding: 6px 12px; margin: 0; font-size: 12px; border-radius: 8px; }
+    .logout-btn { background: rgba(255, 255, 255, 0.15); color: #ddd; width: auto; padding: 6px 12px; margin: 0; font-size: 12px; border-radius: 8px; }
+
+    .search-box { position: relative; margin-bottom: 15px; }
+    .search-box input { padding-left: 36px; border-radius: 20px; background: rgba(255, 255, 255, 0.05); margin-top: 0; }
+    .search-icon { position: absolute; left: 12px; top: 12px; color: #8a8d9b; font-size: 16px; }
+
+    .profile-card { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 14px; margin-bottom: 14px; display: flex; gap: 14px; align-items: center; position: relative; }
+    .avatar-wrap { position: relative; width: 62px; height: 62px; flex-shrink: 0; }
+    .avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; background: #232533; border: 2px solid #ff0844; }
+    .avatar-placeholder { width: 100%; height: 100%; border-radius: 50%; background: #232533; border: 2px solid #ff0844; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #8a8d9b; }
+    
+    .online-badge { position: absolute; bottom: 2px; right: 2px; width: 14px; height: 14px; background: #00c853; border: 2px solid #0f1016; border-radius: 50%; }
+    .offline-badge { position: absolute; bottom: 2px; right: 2px; width: 14px; height: 14px; background: #717684; border: 2px solid #0f1016; border-radius: 50%; }
+    .info { flex: 1; }
+    .info h3 { font-size: 16px; color: #fff; margin-bottom: 4px; }
+    .info p { font-size: 13px; color: #9da1b6; margin: 2px 0; }
+    .info .last-seen-text { font-size: 11px; color: #00e5ff; font-weight: 500; }
+    .like-btn-wrap { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+    .like-btn { width: auto; padding: 8px 16px; margin: 0; background: linear-gradient(135deg, #ff0844, #ff5e7e); color: white; font-size: 13px; border-radius: 20px; box-shadow: 0 2px 10px rgba(255, 8, 68, 0.3); }
+    .unread-count-badge { background: #ff1744; color: white; font-size: 11px; font-weight: bold; border-radius: 12px; padding: 2px 8px; box-shadow: 0 0 10px rgba(255, 23, 68, 0.6); }
+
+    /* ડિફૉલ્ટ સાદી ડાર્ક થીમ (Simple Dark) */
+    #chatPopup { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 999; flex-direction: column; transition: background 0.3s ease; background: #121218; }
+    #chatPopup .msg.sent { background: linear-gradient(135deg, #ff0844, #ff4b72); color: white; }
+
+    /* વૈકલ્પિક થીમ્સ (પસંદ કરો ત્યારે જ આવે) */
+    #chatPopup.theme-love {
+      background: radial-gradient(circle at top right, #38001e, #13000b 80%), url('https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=600&auto=format&fit=crop');
+      background-blend-mode: overlay; background-size: cover;
     }
-    input:focus, select:focus, textarea:focus { border-color: #f43f5e; box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15); }
+    #chatPopup.theme-love .msg.sent { background: linear-gradient(135deg, #ff1493, #ff4b72); }
 
-    .file-box { display: flex; align-items: center; gap: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 10px; }
-    .file-box input[type="file"] { font-size: 13px; color: #94a3b8; }
+    #chatPopup.theme-neon {
+      background: radial-gradient(circle at bottom left, #05051a, #02000a 80%), url('https://images.unsplash.com/photo-1509198397868-475647b2a1e5?q=80&w=600&auto=format&fit=crop');
+      background-blend-mode: color-dodge; background-size: cover;
+    }
+    #chatPopup.theme-neon .msg.sent { background: linear-gradient(135deg, #00f2fe, #4facfe); }
 
-    .action-btn { width: 100%; background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); transition: transform 0.1s; }
-    .action-btn:active { transform: scale(0.98); }
+    #chatPopup.theme-sunset {
+      background: radial-gradient(circle at top, #2b0b14, #0b0205 85%), url('https://images.unsplash.com/photo-1495616811223-4d98c6e9c869?q=80&w=600&auto=format&fit=crop');
+      background-blend-mode: screen; background-size: cover;
+    }
+    #chatPopup.theme-sunset .msg.sent { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); color: #111; }
 
-    /* Chat Area UI */
-    .chat-box-wrapper { display: none; flex-direction: column; height: 78vh; background: #1e293b; border-radius: 18px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
-    .chat-top-bar { background: #0f172a; padding: 14px 18px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-    .chat-top-bar .room-info { font-weight: bold; color: #38bdf8; font-size: 16px; }
-    .chat-top-bar .user-badge { font-size: 12px; background: #334155; padding: 4px 10px; border-radius: 20px; color: #cbd5e1; }
+    #chatPopup.theme-forest {
+      background: radial-gradient(circle, #021a11, #000805 90%), url('https://images.unsplash.com/photo-1511497584788-87676104235f?q=80&w=600&auto=format&fit=crop');
+      background-blend-mode: overlay; background-size: cover;
+    }
+    #chatPopup.theme-forest .msg.sent { background: linear-gradient(135deg, #0ba360, #3cba92); }
 
-    .chat-messages-area { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0d1322; }
+    .chat-header { background: rgba(26, 27, 36, 0.9); backdrop-filter: blur(10px); color: white; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); z-index: 10; }
+    .chat-back-btn { font-size: 24px; cursor: pointer; color: #fff; margin-right: 8px; }
+    .theme-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white; border-radius: 20px; padding: 6px 12px; font-size: 13px; cursor: pointer; margin: 0; width: auto; font-weight: 600; }
+    .video-btn { background: #00c853; color: white; width: auto; padding: 6px 12px; margin: 0; font-size: 13px; border-radius: 8px; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
     
-    .chat-bubble { max-width: 82%; padding: 12px 16px; border-radius: 14px; font-size: 14px; word-break: break-word; display: flex; flex-direction: column; gap: 6px; line-height: 1.4; }
-    .chat-bubble.mine { background: #f43f5e; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    .chat-bubble.theirs { background: #1e293b; color: #f8fafc; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #334155; }
-    .chat-bubble img { max-width: 100%; border-radius: 10px; max-height: 220px; object-fit: cover; margin-top: 4px; }
-    
-    .chat-bottom-bar { padding: 12px; background: #0f172a; border-top: 1px solid #334155; display: flex; gap: 10px; align-items: center; }
-    .media-upload-btn { background: #334155; color: white; border: none; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; transition: background 0.2s; }
-    .media-upload-btn:hover { background: #475569; }
-    .chat-bottom-bar input[type="text"] { flex: 1; }
-    .send-msg-btn { background: #0284c7; color: white; border: none; padding: 0 18px; height: 44px; border-radius: 10px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
+    .msg-row { display: flex; align-items: flex-end; width: 100%; position: relative; }
+    .msg-row.sent { justify-content: flex-end; }
+    .msg-row.received { justify-content: flex-start; }
+    .msg { position: relative; padding: 10px 14px; border-radius: 18px; max-width: 78%; font-size: 14px; line-height: 1.4; word-break: break-word; user-select: none; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+    .msg.sent { border-bottom-right-radius: 4px; }
+    .msg.received { background: rgba(38, 40, 55, 0.9); color: #eee; border-bottom-left-radius: 4px; border: 1px solid rgba(255,255,255,0.08); }
+    .msg-reaction-pill { position: absolute; bottom: -8px; right: 8px; background: #1e202f; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 1px 6px; font-size: 12px; }
+
+    .insta-input-container { padding: 8px 12px 12px 12px; background: rgba(18, 18, 24, 0.85); backdrop-filter: blur(10px); border-top: 1px solid rgba(255,255,255,0.06); }
+    .insta-bar { display: flex; align-items: center; background: rgba(34, 36, 51, 0.9); border-radius: 28px; padding: 4px 8px 4px 6px; border: 1px solid rgba(255,255,255,0.12); }
+    .insta-camera-btn { width: 36px; height: 36px; border-radius: 50%; background: #ff0844; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; margin: 0; }
+    .insta-camera-btn svg { width: 20px; height: 20px; fill: white; }
+    .insta-bar input { flex: 1; background: transparent; border: none; color: white; padding: 8px 10px; margin: 0; font-size: 14px; outline: none; }
+    .insta-action-icons { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .icon-btn { background: transparent; border: none; padding: 0; margin: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #a5a9bf; }
+    .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+    .send-btn-small { background: #ff0844; color: white; border: none; border-radius: 18px; padding: 6px 14px; font-size: 13px; font-weight: bold; margin: 0; width: auto; cursor: pointer; }
+
+    /* થીમ મેનૂ */
+    #themeModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.65); z-index: 10005; align-items: flex-end; justify-content: center; }
+    .theme-card { background: #1c1d29; width: 100%; max-width: 460px; border-top-left-radius: 22px; border-top-right-radius: 22px; padding: 18px; display: flex; flex-direction: column; gap: 12px; }
+    .theme-option { display: flex; align-items: center; gap: 14px; padding: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; cursor: pointer; }
+    .theme-preview-circle { width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; }
+    .theme-title { font-size: 15px; font-weight: 600; color: white; }
+
+    /* Long Press Action Sheet */
+    #instaActionModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center; }
+    .insta-popup-box { width: 85%; max-width: 290px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .insta-reaction-bar { background: #1c1d29; border: 1px solid rgba(255,255,255,0.15); border-radius: 35px; padding: 8px 14px; display: flex; gap: 12px; }
+    .insta-reaction-bar span { font-size: 26px; cursor: pointer; }
+    .insta-menu-card { background: #232536; border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; width: 100%; overflow: hidden; }
+    .insta-menu-item { width: 100%; padding: 13px 18px; background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,0.06); color: #fff; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 12px; margin: 0; cursor: pointer; }
+    .insta-menu-item.danger { color: #ff4b72; font-weight: bold; }
+
+    /* સ્ટોરી મોડલ્સ */
+    #storyCaptionModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92); z-index: 10020; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px 16px; }
+    .story-preview-img-box { flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
+    #storyPreviewImage { max-width: 100%; max-height: 65vh; border-radius: 16px; object-fit: contain; }
+    .story-caption-input-bar { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 10px; }
+    .story-caption-input-bar input { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 25px; padding: 12px 18px; color: white; font-size: 15px; outline: none; }
+    .story-action-btns { display: flex; gap: 10px; width: 100%; }
+    .story-share-btn { flex: 2; background: linear-gradient(135deg, #ff0844, #ff5e7e); color: white; border: none; border-radius: 20px; padding: 12px; font-weight: bold; cursor: pointer; margin: 0; }
+    .story-cancel-btn { flex: 1; background: #333; color: #ddd; border: none; border-radius: 20px; padding: 12px; font-weight: bold; cursor: pointer; margin: 0; }
+
+    #storyViewerModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 10010; flex-direction: column; align-items: center; justify-content: center; }
+    .story-progress-bar-container { position: absolute; top: 12px; left: 16px; right: 16px; height: 3px; background: rgba(255,255,255,0.3); border-radius: 2px; overflow: hidden; z-index: 20; }
+    .story-progress-fill { width: 0%; height: 100%; background: #fff; transition: width 4.5s linear; }
+    .story-user-header { position: absolute; top: 24px; left: 16px; display: flex; align-items: center; gap: 10px; z-index: 20; }
+    .story-user-header img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid white; }
+    .story-close-btn { position: absolute; top: 22px; right: 16px; font-size: 26px; color: white; cursor: pointer; z-index: 25; }
+    #storyViewerImg { max-width: 100%; max-height: 80vh; object-fit: contain; }
+    .story-caption-display { position: absolute; bottom: 35px; left: 20px; right: 20px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); padding: 10px 16px; border-radius: 14px; color: white; font-size: 15px; text-align: center; z-index: 20; }
+
+    /* વિડિયો કૉલ સ્ક્રીન */
+    #videoCallScreen { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: #000; z-index: 10000; flex-direction: column; }
+    #remoteVideo { width: 100%; height: 100%; object-fit: cover; }
+    #localVideo { position: absolute; top: 25px; right: 20px; width: 110px; height: 160px; object-fit: cover; border-radius: 16px; border: 2px solid rgba(255,255,255,0.8); z-index: 10; background: #202028; }
+    .call-controls { position: absolute; bottom: 35px; left: 0; right: 0; display: flex; justify-content: center; gap: 24px; z-index: 20; }
+    .control-btn { width: 60px; height: 60px; border-radius: 50%; background: rgba(255,255,255,0.18); color: white; font-size: 24px; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.25); cursor: pointer; }
+    .control-btn.end { background: #ff1744; border: none; }
+
+    #incomingCallModal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.92); z-index: 10015; flex-direction: column; align-items: center; justify-content: center; color: white; }
   </style>
 </head>
 <body>
 
-  <header>
-    <div class="logo-text">MeetFriends</div>
-    <div class="header-icons">🔔 ⚙️</div>
-  </header>
+<div id="mainAppView">
+  <header>MeetFriends</header>
 
-  <div class="main-wrapper">
-    <!-- Stories Carousel -->
-    <div class="stories-wrapper" id="stories-strip">
-      <div class="story-card" onclick="alert('તમારી નવી સ્ટોરી ઉમેરો')">
-        <div class="story-circle">
-          <div class="story-inner" style="background: #f43f5e; color: white;">➕</div>
-        </div>
-        <span class="story-title">મારી સ્ટોરી</span>
+  <div class="container">
+    <div id="userBar">
+      <div class="user-badge">
+        <img id="userBarAvatar" src="" style="display:none;" alt="Profile">
+        <div id="userBarPlaceholder" class="avatar-placeholder" style="width:40px; height:40px; font-size:18px;">👤</div>
+        <div class="online-badge"></div>
+        <span><span id="currentUserNameDisplay"></span></span>
       </div>
-      <div class="story-card">
-        <div class="story-circle">
-          <div class="story-inner">❤️</div>
-        </div>
-        <span class="story-title">My Love</span>
-      </div>
-      <div class="story-card">
-        <div class="story-circle">
-          <div class="story-inner">🌟</div>
-        </div>
-        <span class="story-title">રાહુલ</span>
-      </div>
-      <div class="story-card">
-        <div class="story-circle">
-          <div class="story-inner">🔥</div>
-        </div>
-        <span class="story-title">અનિલ</span>
+      <div class="bar-actions">
+        <button class="logout-btn" onclick="logout()">લૉગઆઉટ</button>
       </div>
     </div>
 
-    <!-- Profile Creation Form Panel -->
-    <div class="panel" id="profile-panel">
-      <div class="panel-title">તમારી પ્રોફાઇલ બનાવો</div>
-      
-      <div class="input-group">
-        <label>નામ</label>
-        <input type="text" id="user-name" placeholder="તમારું પૂરૂં નામ લખો" />
-      </div>
-      
-      <div class="input-group">
-        <label>ઉંમર</label>
-        <input type="number" id="user-age" placeholder="તમારી ઉંમર" />
-      </div>
-      
-      <div class="input-group">
-        <label>ગામ અથવા શહેર</label>
-        <input type="text" id="user-city" placeholder="તમારું શહેર/ગામ" />
-      </div>
-      
-      <div class="input-group">
-        <label>જાતિ</label>
-        <select id="user-gender">
-          <option value="" disabled selected>જાતિ પસંદ કરો</option>
-          <option value="પુરુષ">પુરુષ</option>
-          <option value="સ્ત્રી">સ્ત્રી</option>
-          <option value="અન્ય">અન્ય</option>
-        </select>
-      </div>
-      
-      <div class="input-group">
-        <label>પ્રોફાઇલ ફોટો પસંદ કરો</label>
-        <div class="file-box">
-          <input type="file" id="user-photo" accept="image/*" />
+    <!-- સ્ટોરીઝ બાર -->
+    <div class="stories-wrap" id="storiesBar">
+      <div class="story-item" onclick="document.getElementById('storyFileInput').click()">
+        <div class="story-ring my-story-ring">
+          <img id="myStoryAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Me" alt="My Story">
+          <div class="add-badge">+</div>
         </div>
+        <span class="story-name">મારી સ્ટોરી</span>
       </div>
-      
-      <div class="input-group">
-        <label>બાયો / પરિચય</label>
-        <textarea id="user-bio" rows="3" placeholder="તમારા વિશે કંઈક ખાસ લખો..."></textarea>
-      </div>
-
-      <button class="action-btn" id="create-profile-btn">પ્રોફાઇલ સેવ કરો</button>
+      <input type="file" id="storyFileInput" accept="image/*" style="display:none;" onchange="onSelectStoryFile(event)">
     </div>
 
-    <!-- Interactive Chat Room Panel -->
-    <div class="chat-box-wrapper" id="chat-panel">
-      <div class="chat-top-bar">
-        <div class="room-info">💬 MeetFriends ચેટરૂમ</div>
-        <div class="user-badge" id="profile-badge-name">ઓનલાઇન</div>
+    <!-- સરળ અને ફાસ્ટ પ્રોફાઇલ બનાવો -->
+    <div class="card" id="profileFormCard">
+      <h2 id="formTitle">તમારી પ્રોફાઇલ બનાવો</h2>
+      <input type="text" id="name" placeholder="તમારું નામ">
+      <input type="number" id="age" placeholder="ઉંમર">
+      <input type="text" id="city" placeholder="ગામ અથવા શહેર">
+      <select id="gender">
+        <option value="">જાતિ પસંદ કરો</option>
+        <option value="Male">પુરુષ</option>
+        <option value="Female">સ્ત્રી</option>
+      </select>
+      
+      <label style="font-size: 13px; color: #8a8d9b; margin-top: 10px; display: block;">પ્રોફાઇલ ફોટો પસંદ કરો:</label>
+      <div style="display: flex; gap: 12px; align-items: center; margin-top: 6px;">
+        <img id="previewPhoto" src="" style="display:none; width:55px; height:55px; border-radius:50%; object-fit:cover; border:2px solid #ff0844;" alt="Preview">
+        <input type="file" id="photoInput" accept="image/*" style="margin-top:0;" onchange="previewImage(event)">
       </div>
       
-      <div class="chat-messages-area" id="chat-stream">
-        <div class="chat-bubble theirs">
-          <span>નમસ્તે! MeetFriends માં તમારું સ્વાગત છે. અહીં તમે મિત્રો સાથે ચેટ કરી શકો છો અને ફોટા મોકલી શકો છો! 🚀</span>
-        </div>
-      </div>
+      <textarea id="bio" placeholder="તમારા વિશે કંઈક લખો..." rows="2"></textarea>
+      <button class="primary-btn" id="submitBtn" onclick="saveProfile()">પ્રોફાઇલ સેવ કરો</button>
+    </div>
 
-      <div class="chat-bottom-bar">
-        <label class="media-upload-btn" title="ફોટો મોકલો">
-          📷 <input type="file" id="chat-img-input" accept="image/*" style="display: none;" />
-        </label>
-        <input type="text" id="chat-text-input" placeholder="મેસેજ લખો..." />
-        <button class="send-msg-btn" id="send-msg-btn">મોકલો</button>
+    <!-- મિત્રોની યાદી -->
+    <div class="card" id="userListCard" style="display:none;">
+      <h2>શોધો અને મિત્રો બનાવો</h2>
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" placeholder="શહેર કે નામથી શોધો..." oninput="filterProfiles()">
+      </div>
+      <div id="profileList">પ્રોફાઇલ્સ લોડ થઈ રહી છે...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ફૂલસ્ક્રીન ચેટ (હંમેશા ડિફૉલ્ટ સાદી થીમમાં ખુલશે) -->
+<div id="chatPopup">
+  <div class="chat-header">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="chat-back-btn" onclick="closeChat()">←</span>
+      <div>
+        <div id="chatWithTitle" style="font-weight:700; font-size:16px;">ચેટિંગ</div>
+        <div id="chatStatusText" style="font-size:11px; color:#00c853;">Active Now</div>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="theme-btn" onclick="openThemeModal()">🎨 થીમ</button>
+      <button class="video-btn" onclick="makeVideoCall()">📹 કોલ</button>
+    </div>
+  </div>
+  
+  <div class="chat-messages" id="chatBox"></div>
+  <div id="typingIndicator" style="font-size:12px; color:#ff5e7e; padding:0 16px 4px 16px; font-style:italic;"></div>
+  
+  <div class="insta-input-container">
+    <div class="insta-bar">
+      <input type="file" id="chatCameraInput" accept="image/*" capture="environment" style="display:none;" onchange="sendPhotoMessage(event)">
+      <button class="insta-camera-btn" title="કૅમેરા" onclick="document.getElementById('chatCameraInput').click()">
+        <svg viewBox="0 0 24 24"><path d="M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z"/><path d="M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/></svg>
+      </button>
+
+      <input type="text" id="chatInput" placeholder="મેસેજ લખો..." oninput="handleTyping()">
+
+      <div class="insta-action-icons">
+        <input type="file" id="chatGalleryInput" accept="image/*" style="display:none;" onchange="sendPhotoMessage(event)">
+        <button class="icon-btn" title="ગેલેરી" onclick="document.getElementById('chatGalleryInput').click()">
+          <svg viewBox="0 0 24 24"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        </button>
+
+        <button class="send-btn-small" onclick="sendMessage()">મોકલો</button>
       </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const createBtn = document.getElementById('create-profile-btn');
-    const profilePanel = document.getElementById('profile-panel');
-    const chatPanel = document.getElementById('chat-panel');
-    const badgeName = document.getElementById('profile-badge-name');
-    const chatStream = document.getElementById('chat-stream');
-    const chatTextInput = document.getElementById('chat-text-input');
-    const sendMsgBtn = document.getElementById('send-msg-btn');
-    const chatImgInput = document.getElementById('chat-img-input');
+<!-- થીમ મેનૂ (તમે પસંદ કરો ત્યારે જ બદલાશે) -->
+<div id="themeModal" onclick="closeThemeModal()">
+  <div class="theme-card" onclick="event.stopPropagation()">
+    <h3 style="color:white; font-size:16px; margin-bottom:4px;">ચેટ થીમ પસંદ કરો</h3>
+    <div class="theme-option" onclick="setChatTheme('')">
+      <div class="theme-preview-circle" style="background: #232536;"></div>
+      <span class="theme-title">🖤 સાદી ડાર્ક (Default Simple)</span>
+    </div>
+    <div class="theme-option" onclick="setChatTheme('theme-love')">
+      <div class="theme-preview-circle" style="background: linear-gradient(135deg, #ff1493, #ff4b72);"></div>
+      <span class="theme-title">💖 Love Pink</span>
+    </div>
+    <div class="theme-option" onclick="setChatTheme('theme-neon')">
+      <div class="theme-preview-circle" style="background: linear-gradient(135deg, #00f2fe, #4facfe);"></div>
+      <span class="theme-title">⚡ Neon Blue</span>
+    </div>
+    <div class="theme-option" onclick="setChatTheme('theme-sunset')">
+      <div class="theme-preview-circle" style="background: linear-gradient(135deg, #fa709a, #fee140);"></div>
+      <span class="theme-title">🌅 Sunset Glow</span>
+    </div>
+    <div class="theme-option" onclick="setChatTheme('theme-forest')">
+      <div class="theme-preview-circle" style="background: linear-gradient(135deg, #0ba360, #3cba92);"></div>
+      <span class="theme-title">🍃 Forest Green</span>
+    </div>
+  </div>
+</div>
 
-    let activeUserName = "User";
+<!-- Long Press Action Sheet -->
+<div id="instaActionModal" onclick="closeInstaAction()">
+  <div class="insta-popup-box" onclick="event.stopPropagation()">
+    <div class="insta-reaction-bar">
+      <span onclick="addReaction('❤️')">❤️</span>
+      <span onclick="addReaction('😂')">😂</span>
+      <span onclick="addReaction('😮')">😮</span>
+      <span onclick="addReaction('😢')">😢</span>
+      <span onclick="addReaction('🔥')">🔥</span>
+      <span onclick="addReaction('👍')">👍</span>
+    </div>
+    <div class="insta-menu-card">
+      <button class="insta-menu-item" id="menuCopyBtn" onclick="actionCopyMsg()">📋 કોપી કરો</button>
+      <button class="insta-menu-item" onclick="actionShareMsg()">↗️ શેર કરો</button>
+      <button class="insta-menu-item danger" id="menuDeleteBtn" onclick="actionDeleteMsg()">🗑️ ડિલીટ કરો</button>
+    </div>
+  </div>
+</div>
 
-    createBtn.addEventListener('click', () => {
-      const nameVal = document.getElementById('user-name').value.trim();
-      if (!nameVal) {
-        alert('કૃપા કરીને તમારું નામ દાખલ કરો!');
-        return;
-      }
-      activeUserName = nameVal;
-      
-      // Switch view from Profile Form to Chat Room
-      profilePanel.style.display = 'none';
-      chatPanel.style.display = 'flex';
-      badgeName.innerText = activeUserName;
-      
-      appendChatBubble(`હું ચેટમાં જોડાઈ ગયો છું! 👋`, 'mine', 'text');
-      setTimeout(() => {
-        appendChatBubble(`અરે ${activeUserName}! આપનું સ્વાગત છે. બોલો કેમ છો?`, 'theirs', 'text');
-      }, 800);
-    });
+<!-- સ્ટોરી કૅપ્શન મોડલ -->
+<div id="storyCaptionModal">
+  <div class="story-preview-img-box">
+    <img id="storyPreviewImage" src="" alt="Story Preview">
+  </div>
+  <div class="story-caption-input-bar">
+    <input type="text" id="storyCaptionInput" placeholder="કંઈક લખો... (Caption)">
+    <div class="story-action-btns">
+      <button class="story-share-btn" onclick="uploadStory()">સ્ટોરી શેર કરો</button>
+      <button class="story-cancel-btn" onclick="closeStoryCaptionModal()">રદ કરો</button>
+    </div>
+  </div>
+</div>
 
-    sendMsgBtn.addEventListener('click', handleUserMessage);
-    chatTextInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') handleUserMessage();
-    });
+<!-- સ્ટોરી વ્યુઅર -->
+<div id="storyViewerModal">
+  <div class="story-progress-bar-container">
+    <div class="story-progress-fill" id="storyProgressFill"></div>
+  </div>
+  <div class="story-user-header">
+    <img id="storyViewerAvatar" src="" alt="User">
+    <span id="storyViewerName" style="color:white; font-weight:bold; font-size:14px;"></span>
+  </div>
+  <span class="story-close-btn" onclick="closeStoryViewer()">✕</span>
+  <img id="storyViewerImg" src="" alt="Story">
+  <div class="story-caption-display" id="storyViewerCaption" style="display:none;"></div>
+</div>
 
-    function handleUserMessage() {
-      const text = chatTextInput.value.trim();
-      if (!text) return;
-      appendChatBubble(text, 'mine', 'text');
-      chatTextInput.value = '';
+<!-- ઇનકમિંગ કૉલ પોપઅપ -->
+<div id="incomingCallModal">
+  <div style="width:85px; height:85px; border-radius:50%; background:#ff0844; display:flex; align-items:center; justify-content:center; font-size:40px; margin-bottom:15px;">📹</div>
+  <h2 id="callerNameText" style="font-size:20px;">કોલ આવી રહ્યો છે...</h2>
+  <div style="display:flex; gap:35px; margin-top:25px;">
+    <button style="width:65px; height:65px; border-radius:50%; background:#00c853; border:none; font-size:26px; color:white; cursor:pointer;" onclick="acceptCall()">📞</button>
+    <button style="width:65px; height:65px; border-radius:50%; background:#ff1744; border:none; font-size:26px; color:white; cursor:pointer;" onclick="rejectCall()">✕</button>
+  </div>
+</div>
 
-      // Automated intelligent response simulation
-      setTimeout(() => {
-        appendChatBubble('વાહ સરસ! તમારો મેસેજ મળી ગયો છે 👍', 'theirs', 'text');
-      }, 1000);
+<!-- વિડિયો કૉલ સ્ક્રીન -->
+<div id="videoCallScreen">
+  <video id="remoteVideo" autoplay playsinline></video>
+  <video id="localVideo" autoplay playsinline muted></video>
+  <div class="call-controls">
+    <button class="control-btn" onclick="toggleMute()" id="muteBtn">🎙️</button>
+    <button class="control-btn" onclick="flipCamera()">🔄</button>
+    <button class="control-btn end" onclick="endCall()">📞</button>
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, getDocs, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBy3FQ1jv1um2xs_mOct4c",
+    authDomain: "meetfriends-dba82.firebaseapp.com",
+    projectId: "meetfriends-dba82",
+    storageBucket: "meetfriends-dba82.firebasestorage.app",
+    messagingSenderId: "614309313313",
+    appId: "1:614309313313:web:99586fdf74"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let currentUserName = localStorage.getItem("meetfriends_user") || "";
+  let currentUserDocId = localStorage.getItem("meetfriends_user_doc_id") || "";
+  let currentCallId = null;
+  let activeChatPartner = "";
+  let currentPhotoData = "";
+  let tempStoryData = "";
+  let localStream = null;
+  let isMuted = false;
+  let currentFacingMode = "user";
+  let allProfiles = [];
+  let selectedMsg = null;
+  let storyTimer = null;
+  const appStartTime = new Date(); // આ સમય પછીનો જ નવો કૉલ વાગશે
+
+  function updateUserStatus(isOnline) {
+    if(!currentUserDocId) return;
+    try {
+      updateDoc(doc(db, "users", currentUserDocId), {
+        isOnline: isOnline,
+        lastSeen: new Date()
+      });
+    } catch(e){}
+  }
+
+  window.addEventListener('beforeunload', () => updateUserStatus(false));
+  document.addEventListener('visibilitychange', () => updateUserStatus(document.visibilityState === 'visible'));
+
+  window.previewImage = function(e) {
+    const file = e.target.files[0];
+    if(file) {
+      const r = new FileReader();
+      r.onload = (ev) => {
+        currentPhotoData = ev.target.result;
+        const p = document.getElementById('previewPhoto');
+        p.src = currentPhotoData;
+        p.style.display = 'block';
+      };
+      r.readAsDataURL(file);
     }
+  };
 
-    // Image sharing handling inside chat
-    chatImgInput.addEventListener('change', function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = function(event) {
-          appendChatBubble(event.target.result, 'mine', 'image');
-          setTimeout(() => {
-            appendChatBubble('ખૂબ જ સુંદર ફોટો છે મિત્ર! ✨', 'theirs', 'text');
-          }, 1000);
+  async function checkUserState() {
+    const formCard = document.getElementById('profileFormCard');
+    const userBar = document.getElementById('userBar');
+    const userListCard = document.getElementById('userListCard');
+    const nameDisplay = document.getElementById('currentUserNameDisplay');
+    const avatarImg = document.getElementById('userBarAvatar');
+    const avatarPlaceholder = document.getElementById('userBarPlaceholder');
+    const myStoryAvatar = document.getElementById('myStoryAvatar');
+
+    if(currentUserName) {
+      formCard.style.display = 'none';
+      userBar.style.display = 'flex';
+      userListCard.style.display = 'block';
+      nameDisplay.innerText = currentUserName;
+
+      try {
+        const snap = await getDocs(query(collection(db, "users"), where("name", "==", currentUserName)));
+        if(!snap.empty) {
+          currentUserDocId = snap.docs[0].id;
+          localStorage.setItem("meetfriends_user_doc_id", currentUserDocId);
+          updateUserStatus(true);
+          const u = snap.docs[0].data();
+          if(u.photo) {
+            avatarImg.src = u.photo;
+            avatarImg.style.display = 'block';
+            avatarPlaceholder.style.display = 'none';
+            if(myStoryAvatar) myStoryAvatar.src = u.photo;
+          }
         }
-        reader.readAsDataURL(file);
+      } catch(e){}
+      listenForIncomingCalls();
+      loadStories();
+      loadProfiles();
+    } else {
+      formCard.style.display = 'block';
+      userBar.style.display = 'none';
+      userListCard.style.display = 'none';
+    }
+  }
+
+  window.saveProfile = async function() {
+    const name = document.getElementById('name').value.trim();
+    const age = document.getElementById('age').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const gender = document.getElementById('gender').value;
+    const bio = document.getElementById('bio').value.trim();
+
+    if(!name || !age || !city || !gender) {
+      alert("બધી માહિતી ભરો!");
+      return;
+    }
+
+    try {
+      if(currentUserDocId) {
+        await updateDoc(doc(db, "users", currentUserDocId), {
+          name, age, city, gender, bio, photo: currentPhotoData || "", updatedAt: new Date()
+        });
+      } else {
+        const docRef = await addDoc(collection(db, "users"), {
+          name, age, city, gender, bio, photo: currentPhotoData || "", isOnline: true, createdAt: new Date()
+        });
+        currentUserDocId = docRef.id;
+        localStorage.setItem("meetfriends_user_doc_id", currentUserDocId);
       }
+      localStorage.setItem("meetfriends_user", name);
+      currentUserName = name;
+      checkUserState();
+    } catch(e) {
+      alert("ભૂલ: " + e.message);
+    }
+  };
+
+  window.logout = function() {
+    updateUserStatus(false);
+    localStorage.clear();
+    location.reload();
+  };
+
+  // પ્રોફાઇલ્સ અને અણવાંચેલા મેસેજ કાઉન્ટર
+  async function loadProfiles() {
+    onSnapshot(collection(db, "users"), (snap) => {
+      allProfiles = [];
+      snap.forEach(d => allProfiles.push({ id: d.id, ...d.data() }));
+      renderProfileList(allProfiles);
     });
 
-    function appendChatBubble(content, senderType, dataType) {
-      const bubble = document.createElement('div');
-      bubble.className = `chat-bubble ${senderType}`;
-      
-      if (dataType === 'text') {
-        const textSpan = document.createElement('span');
-        textSpan.innerText = content;
-        bubble.appendChild(textSpan);
-      } else if (dataType === 'image') {
-        const imgEl = document.createElement('img');
-        imgEl.src = content;
-        bubble.appendChild(imgEl);
-      }
+    onSnapshot(collection(db, "chats"), () => {
+      renderProfileList(allProfiles);
+    });
+  }
 
-      chatStream.appendChild(bubble);
-      chatStream.scrollTop = chatStream.scrollHeight;
+  async function renderProfileList(profiles) {
+    const list = document.getElementById('profileList');
+    if(!list) return;
+    list.innerHTML = "";
+
+    const unreadCounts = {};
+    if(currentUserName) {
+      try {
+        const unreadSnap = await getDocs(query(
+          collection(db, "chats"),
+          where("to", "==", currentUserName),
+          where("read", "==", false)
+        ));
+        unreadSnap.forEach(docSnap => {
+          const msg = docSnap.data();
+          unreadCounts[msg.from] = (unreadCounts[msg.from] || 0) + 1;
+        });
+      } catch(e){}
     }
-  </script>
+
+    profiles.filter(p => p.name !== currentUserName).forEach((u) => {
+      const avatarEl = u.photo ? `<img class="avatar" src="${u.photo}">` : `<div class="avatar-placeholder">👤</div>`;
+      const dot = u.isOnline ? `<div class="online-badge"></div>` : `<div class="offline-badge"></div>`;
+      const count = unreadCounts[u.name] || 0;
+      const badgeHtml = count > 0 ? `<span class="unread-count-badge">${count}</span>` : '';
+
+      list.innerHTML += `
+        <div class="profile-card">
+          <div class="avatar-wrap">${avatarEl}${dot}</div>
+          <div class="info">
+            <h3>${u.name}, ${u.age}</h3>
+            <p>📍 ${u.city}</p>
+            <p class="last-seen-text">${u.isOnline ? 'Online' : 'Offline'}</p>
+          </div>
+          <div class="like-btn-wrap">
+            <button class="like-btn" onclick="openChat('${u.name}', ${u.isOnline || false})">ચેટ</button>
+            ${badgeHtml}
+          </div>
+        </div>
+      `;
+    });
+  }
+
+  window.filterProfiles = function() {
+    const term = document.getElementById('searchInput').value.toLowerCase().trim();
+    renderProfileList(allProfiles.filter(p => (p.name && p.name.toLowerCase().includes(term)) || (p.city && p.city.toLowerCase().includes(term))));
+  };
+
+  // સ્ટોરીઝ મોડ્યુલ
+  window.onSelectStoryFile = function(e) {
+    const f = e.target.files[0];
+    if(f) {
+      const r = new FileReader();
+      r.onload = (ev) => {
+        tempStoryData = ev.target.result;
+        document.getElementById('storyPreviewImage').src = tempStoryData;
+        document.getElementById('storyCaptionModal').style.display = 'flex';
+      };
+      r.readAsDataURL(f);
+    }
+  };
+
+  window.closeStoryCaptionModal = () => document.getElementById('storyCaptionModal').style.display = 'none';
+
+  window.uploadStory = async function() {
+    const cap = document.getElementById('storyCaptionInput').value.trim();
+    try {
+      await addDoc(collection(db, "stories"), {
+        user: currentUserName,
+        photo: tempStoryData,
+        caption: cap,
+        createdAt: new Date()
+      });
+      closeStoryCaptionModal();
+      document.getElementById('storyCaptionInput').value = "";
+    } catch(e) { alert(e.message); }
+  };
+
+  function loadStories() {
+    onSnapshot(query(collection(db, "stories"), orderBy("createdAt", "desc")), (snap) => {
+      const sb = document.getElementById('storiesBar');
+      if(!sb) return;
+      const myItem = sb.firstElementChild;
+      sb.innerHTML = "";
+      sb.appendChild(myItem);
+
+      snap.forEach(d => {
+        const s = d.data();
+        const div = document.createElement('div');
+        div.className = "story-item";
+        div.onclick = () => viewStory(s);
+        div.innerHTML = `
+          <div class="story-ring"><img src="${s.photo}"></div>
+          <span class="story-name">${s.user}</span>
+        `;
+        sb.appendChild(div);
+      });
+    });
+  }
+
+  window.viewStory = function(story) {
+    const modal = document.getElementById('storyViewerModal');
+    const fill = document.getElementById('storyProgressFill');
+    document.getElementById('storyViewerImg').src = story.photo;
+    document.getElementById('storyViewerName').innerText = story.user;
+    
+    const cap = document.getElementById('storyViewerCaption');
+    if(story.caption) {
+      cap.innerText = story.caption;
+      cap.style.display = 'block';
+    } else {
+      cap.style.display = 'none';
+    }
+
+    modal.style.display = 'flex';
+    fill.style.width = '0%';
+    setTimeout(() => { fill.style.width = '100%'; }, 50);
+
+    clearTimeout(storyTimer);
+    storyTimer = setTimeout(() => { closeStoryViewer(); }, 4500);
+  };
+
+  window.closeStoryViewer = function() {
+    clearTimeout(storyTimer);
+    document.getElementById('storyViewerModal').style.display = 'none';
+    document.getElementById('storyProgressFill').style.width = '0%';
+  };
+
+  // ચેટિંગ (હંમેશા ડિફૉલ્ટ સાદી ડાર્ક થીમમાં ખુલશે)
+  window.openChat = async function(name, isOnline) {
+    activeChatPartner = name;
+    document.getElementById('chatWithTitle').innerText = name;
+    document.getElementById('chatStatusText').innerText = isOnline ? "Active Now" : "Offline";
+    document.getElementById('chatStatusText').style.color = isOnline ? "#00c853" : "#8a8d9b";
+    
+    // ડિફૉલ્ટ સાદી થીમ
+    document.getElementById('chatPopup').className = "";
+    document.getElementById('chatPopup').style.display = 'flex';
+    document.getElementById('mainAppView').style.display = 'none';
+
+    try {
+      const q = query(
+        collection(db, "chats"),
+        where("from", "==", activeChatPartner),
+        where("to", "==", currentUserName),
+        where("read", "==", false)
+      );
+      const snap = await getDocs(q);
+      snap.forEach(async (d) => {
+        await updateDoc(doc(db, "chats", d.id), { read: true });
+      });
+    } catch(e) {}
+
+    loadMessages();
+    listenToTyping();
+  };
+
+  window.closeChat = function() {
+    document.getElementById('chatPopup').style.display = 'none';
+    document.getElementById('mainAppView').style.display = 'block';
+    renderProfileList(allProfiles);
+  };
+
+  // થીમ મેનૂ (જ્યારે તમે બદલો ત્યારે જ બદલાશે)
+  window.openThemeModal = () => document.getElementById('themeModal').style.display = 'flex';
+  window.closeThemeModal = () => document.getElementById('themeModal').style.display = 'none';
+  window.setChatTheme = (t) => {
+    document.getElementById('chatPopup').className = t;
+    closeThemeModal();
+  };
+
+  window.sendMessage = async function() {
+    const inp = document.getElementById('chatInput');
+    const txt = inp.value.trim();
+    if(!txt) return;
+
+    await addDoc(collection(db, "chats"), {
+      from: currentUserName, to: activeChatPartner, type: "text", text: txt, read: false, createdAt: new Date()
+    });
+    inp.value = "";
+  };
+
+  window.sendPhotoMessage = function(e) {
+    const f = e.target.files[0];
+    if(f && activeChatPartner) {
+      const r = new FileReader();
+      r.onload = async (ev) => {
+        await addDoc(collection(db, "chats"), {
+          from: currentUserName, to: activeChatPartner, type: "image", image: ev.target.result, read: false, createdAt: new Date()
+        });
+      };
+      r.readAsDataURL(f);
+    }
+  };
+
+  function loadMessages() {
+    const box = document.getElementById('chatBox');
+    onSnapshot(query(collection(db, "chats"), orderBy("createdAt", "asc")), (snap) => {
+      box.innerHTML = "";
+      snap.forEach(d => {
+        const m = d.data();
+        const id = d.id;
+        const isMe = m.from === currentUserName;
+        if((m.from === currentUserName && m.to === activeChatPartner) || (m.from === activeChatPartner && m.to === currentUserName)) {
+          const row = document.createElement('div');
+          row.className = `msg-row ${isMe ? 'sent' : 'received'}`;
+          
+          let body = m.text || "";
+          if(m.type === 'image') body = `<img src="${m.image}" style="width:130px; height:130px; border-radius:10px; object-fit:cover;">`;
+
+          const reaction = m.reaction ? `<div class="msg-reaction-pill">${m.reaction}</div>` : '';
+          row.innerHTML = `<div class="msg ${isMe ? 'sent' : 'received'}">${body}${reaction}</div>`;
+
+          let timer;
+          const startP = () => timer = setTimeout(() => openInstaAction({ id, ...m }), 500);
+          const endP = () => clearTimeout(timer);
+          row.addEventListener('touchstart', startP);
+          row.addEventListener('touchend', endP);
+          row.addEventListener('mousedown', startP);
+          row.addEventListener('mouseup', endP);
+
+          box.appendChild(row);
+        }
+      });
+      box.scrollTop = box.scrollHeight;
+    });
+  }
+
+  let tTimer;
+  window.handleTyping = function() {
+    const tid = [currentUserName, activeChatPartner].sort().join("_");
+    setDoc(doc(db, "typing", tid), { [currentUserName]: true }, { merge: true });
+    clearTimeout(tTimer);
+    tTimer = setTimeout(() => setDoc(doc(db, "typing", tid), { [currentUserName]: false }, { merge: true }), 1500);
+  };
+
+  function listenToTyping() {
+    const tid = [currentUserName, activeChatPartner].sort().join("_");
+    onSnapshot(doc(db, "typing", tid), (s) => {
+      const el = document.getElementById('typingIndicator');
+      el.innerText = (s.exists() && s.data()[activeChatPartner]) ? `${activeChatPartner} typing...` : "";
+    });
+  }
+
+  window.openInstaAction = function(msg) {
+    selectedMsg = msg;
+    document.getElementById('menuCopyBtn').style.display = (msg.type === 'text') ? 'flex' : 'none';
+    document.getElementById('menuDeleteBtn').style.display = (msg.from === currentUserName) ? 'flex' : 'none';
+    document.getElementById('instaActionModal').style.display = 'flex';
+  };
+  window.closeInstaAction = () => document.getElementById('instaActionModal').style.display = 'none';
+
+  window.addReaction = async function(emoji) {
+    if(selectedMsg) {
+      await updateDoc(doc(db, "chats", selectedMsg.id), { reaction: emoji });
+      closeInstaAction();
+    }
+  };
+
+  window.actionCopyMsg = () => {
+    if(selectedMsg?.text) navigator.clipboard.writeText(selectedMsg.text);
+    closeInstaAction();
+  };
+
+  window.actionShareMsg = () => {
+    if(selectedMsg?.text && navigator.share) navigator.share({ text: selectedMsg.text });
+    closeInstaAction();
+  };
+
+  window.actionDeleteMsg = async () => {
+    if(selectedMsg?.id) await deleteDoc(doc(db, "chats", selectedMsg.id));
+    closeInstaAction();
+  };
+
+  // વિડિયો કૉલિંગ (સુધારેલું લોજિક)
+  async function startCamera(facing = "user") {
+    if (localStream) localStream.getTracks().forEach(t => t.stop());
+    localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: facing }, audio: true });
+    document.getElementById('localVideo').srcObject = localStream;
+    document.getElementById('videoCallScreen').style.display = 'flex';
+  }
+
+  window.makeVideoCall = async function() {
+    if(!activeChatPartner) return;
+    try {
+      await startCamera(currentFacingMode);
+      const ref = await addDoc(collection(db, "calls"), {
+        from: currentUserName,
+        to: activeChatPartner,
+        status: "calling",
+        createdAt: new Date()
+      });
+      currentCallId = ref.id;
+    } catch(e) {
+      alert("કૅમેરા પરવાનગી જરૂરી છે: જો તમે Acode માં હોવ, તો આ પેજને Chrome બ્રાઉઝરમાં ખોલો જેથી કૅમેરો કામ કરે.");
+    }
+  };
+
+  // માત્ર નવો અને ૧ મિનિટની અંદરનો કૉલ જ વાગશે (જૂના ખોટા કૉલ અટકી જશે)
+  function listenForIncomingCalls() {
+    onSnapshot(query(collection(db, "calls"), where("to", "==", currentUserName)), (snap) => {
+      snap.docChanges().forEach(ch => {
+        if(ch.type === "added" || ch.type === "modified") {
+          const c = ch.doc.data();
+          const callTime = c.createdAt ? c.createdAt.toDate() : new Date(0);
+
+          if(c.status === "calling" && callTime >= appStartTime && (new Date() - callTime) < 60000) {
+            currentCallId = ch.doc.id;
+            document.getElementById('callerNameText').innerText = `${c.from} નો કૉલ...`;
+            document.getElementById('incomingCallModal').style.display = 'flex';
+          }
+        }
+      });
+    });
+  }
+
+  window.acceptCall = async function() {
+    document.getElementById('incomingCallModal').style.display = 'none';
+    try {
+      if(currentCallId) await updateDoc(doc(db, "calls", currentCallId), { status: "accepted" });
+      await startCamera(currentFacingMode);
+    } catch(e) {
+      alert("કૅમેરા પરવાનગી માટે Chrome બ્રાઉઝરમાં ઓપન કરો.");
+    }
+  };
+
+  window.rejectCall = async function() {
+    document.getElementById('incomingCallModal').style.display = 'none';
+    if(currentCallId) {
+      await deleteDoc(doc(db, "calls", currentCallId));
+      currentCallId = null;
+    }
+  };
+
+  window.endCall = async function() {
+    if(localStream) {
+      localStream.getTracks().forEach(t => t.stop());
+      localStream = null;
+    }
+    document.getElementById('videoCallScreen').style.display = 'none';
+    if(currentCallId) {
+      await deleteDoc(doc(db, "calls", currentCallId));
+      currentCallId = null;
+    }
+  };
+
+  window.toggleMute = function() {
+    if(!localStream) return;
+    isMuted = !isMuted;
+    localStream.getAudioTracks()[0].enabled = !isMuted;
+    document.getElementById('muteBtn').innerText = isMuted ? '🔇' : '🎙️';
+  };
+
+  window.flipCamera = async function() {
+    currentFacingMode = currentFacingMode === "user" ? "environment" : "user";
+    await startCamera(currentFacingMode);
+  };
+
+  checkUserState();
+</script>
 </body>
 </html>
