@@ -3,132 +3,246 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MeetFriends - Video Call & Chat</title>
-  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <title>MeetFriends - Professional Social & Chat</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; }
-    header { padding: 12px 16px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
-    .status { font-size: 13px; color: #94a3b8; }
-    .peer-id { color: #38bdf8; font-weight: bold; }
-    .main-container { display: flex; flex: 1; flex-direction: column; overflow: hidden; }
-    @media(min-width: 768px) { .main-container { flex-direction: row; } }
-    .video-section { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; background: #020617; }
-    video { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; background: #1e293b; }
-    .chat-section { flex: 1; display: flex; flex-direction: column; background: #1e293b; border-left: 1px solid #334155; max-width: 100%; }
-    @media(min-width: 768px) { .chat-section { max-width: 360px; } }
-    .connect-bar { padding: 8px 12px; display: flex; gap: 6px; border-bottom: 1px solid #334155; background: #0f172a; }
-    input { flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; outline: none; }
-    button { padding: 8px 12px; border: none; border-radius: 6px; background: #0284c7; color: white; cursor: pointer; font-weight: bold; }
-    button:hover { background: #0369a1; }
-    .messages { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-    .msg { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 14px; word-break: break-word; }
-    .msg.me { align-self: flex-end; background: #0284c7; }
-    .msg.other { align-self: flex-start; background: #334155; }
-    .send-bar { padding: 10px; display: flex; gap: 6px; border-top: 1px solid #334155; }
+    body { background: #0b0f19; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { background: linear-gradient(135deg, #f43f5e, #be123c); padding: 16px; text-align: center; font-size: 22px; font-weight: bold; color: white; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); display: flex; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px; }
+    header .logo-text { letter-spacing: 0.5px; }
+    header .header-icons { font-size: 18px; cursor: pointer; }
+
+    .main-wrapper { max-width: 500px; width: 100%; margin: 0 auto; padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+    /* Stories Strip */
+    .stories-wrapper { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; }
+    .stories-wrapper::-webkit-scrollbar { display: none; }
+    .story-card { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; flex-shrink: 0; }
+    .story-circle { width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(45deg, #f43f5e, #fb7185, #38bdf8); padding: 2.5px; display: flex; align-items: center; justify-content: center; }
+    .story-inner { width: 100%; height: 100%; border-radius: 50%; background: #1e293b; display: flex; align-items: center; justify-content: center; font-size: 26px; border: 2px solid #0b0f19; overflow: hidden; }
+    .story-inner img { width: 100%; height: 100%; object-fit: cover; }
+    .story-title { font-size: 12px; color: #cbd5e1; max-width: 68px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+
+    /* Card Panels */
+    .panel { background: #1e293b; border-radius: 18px; padding: 22px; border: 1px solid #334155; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .panel-title { font-size: 20px; font-weight: bold; color: #fb7185; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+
+    .input-group { margin-bottom: 16px; }
+    .input-group label { display: block; font-size: 13px; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+    
+    input[type="text"], input[type="number"], select, textarea {
+      width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; font-size: 15px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #f43f5e; box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15); }
+
+    .file-box { display: flex; align-items: center; gap: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; padding: 10px; }
+    .file-box input[type="file"] { font-size: 13px; color: #94a3b8; }
+
+    .action-btn { width: 100%; background: linear-gradient(135deg, #f43f5e, #e11d48); color: white; border: none; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4); transition: transform 0.1s; }
+    .action-btn:active { transform: scale(0.98); }
+
+    /* Chat Area UI */
+    .chat-box-wrapper { display: none; flex-direction: column; height: 78vh; background: #1e293b; border-radius: 18px; border: 1px solid #334155; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    .chat-top-bar { background: #0f172a; padding: 14px 18px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+    .chat-top-bar .room-info { font-weight: bold; color: #38bdf8; font-size: 16px; }
+    .chat-top-bar .user-badge { font-size: 12px; background: #334155; padding: 4px 10px; border-radius: 20px; color: #cbd5e1; }
+
+    .chat-messages-area { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0d1322; }
+    
+    .chat-bubble { max-width: 82%; padding: 12px 16px; border-radius: 14px; font-size: 14px; word-break: break-word; display: flex; flex-direction: column; gap: 6px; line-height: 1.4; }
+    .chat-bubble.mine { background: #f43f5e; color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
+    .chat-bubble.theirs { background: #1e293b; color: #f8fafc; align-self: flex-start; border-bottom-left-radius: 2px; border: 1px solid #334155; }
+    .chat-bubble img { max-width: 100%; border-radius: 10px; max-height: 220px; object-fit: cover; margin-top: 4px; }
+    
+    .chat-bottom-bar { padding: 12px; background: #0f172a; border-top: 1px solid #334155; display: flex; gap: 10px; align-items: center; }
+    .media-upload-btn { background: #334155; color: white; border: none; width: 44px; height: 44px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; transition: background 0.2s; }
+    .media-upload-btn:hover { background: #475569; }
+    .chat-bottom-bar input[type="text"] { flex: 1; }
+    .send-msg-btn { background: #0284c7; color: white; border: none; padding: 0 18px; height: 44px; border-radius: 10px; font-weight: bold; cursor: pointer; flex-shrink: 0; }
   </style>
 </head>
 <body>
+
   <header>
-    <h2>MeetFriends</h2>
-    <div class="status">તમારો ID: <span id="my-id" class="peer-id">જોડાઈ રહ્યું છે...</span></div>
+    <div class="logo-text">MeetFriends</div>
+    <div class="header-icons">🔔 ⚙️</div>
   </header>
 
-  <div class="main-container">
-    <div class="video-section">
-      <video id="localVideo" autoplay muted playsinline></video>
-      <video id="remoteVideo" autoplay playsinline></video>
+  <div class="main-wrapper">
+    <!-- Stories Carousel -->
+    <div class="stories-wrapper" id="stories-strip">
+      <div class="story-card" onclick="alert('તમારી નવી સ્ટોરી ઉમેરો')">
+        <div class="story-circle">
+          <div class="story-inner" style="background: #f43f5e; color: white;">➕</div>
+        </div>
+        <span class="story-title">મારી સ્ટોરી</span>
+      </div>
+      <div class="story-card">
+        <div class="story-circle">
+          <div class="story-inner">❤️</div>
+        </div>
+        <span class="story-title">My Love</span>
+      </div>
+      <div class="story-card">
+        <div class="story-circle">
+          <div class="story-inner">🌟</div>
+        </div>
+        <span class="story-title">રાહુલ</span>
+      </div>
+      <div class="story-card">
+        <div class="story-circle">
+          <div class="story-inner">🔥</div>
+        </div>
+        <span class="story-title">અનિલ</span>
+      </div>
     </div>
 
-    <div class="chat-section">
-      <div class="connect-bar">
-        <input type="text" id="remote-id-input" placeholder="મિત્રનો ID અહીં લખો" />
-        <button id="call-btn">કૉલ કરો</button>
+    <!-- Profile Creation Form Panel -->
+    <div class="panel" id="profile-panel">
+      <div class="panel-title">તમારી પ્રોફાઇલ બનાવો</div>
+      
+      <div class="input-group">
+        <label>નામ</label>
+        <input type="text" id="user-name" placeholder="તમારું પૂરૂં નામ લખો" />
+      </div>
+      
+      <div class="input-group">
+        <label>ઉંમર</label>
+        <input type="number" id="user-age" placeholder="તમારી ઉંમર" />
+      </div>
+      
+      <div class="input-group">
+        <label>ગામ અથવા શહેર</label>
+        <input type="text" id="user-city" placeholder="તમારું શહેર/ગામ" />
+      </div>
+      
+      <div class="input-group">
+        <label>જાતિ</label>
+        <select id="user-gender">
+          <option value="" disabled selected>જાતિ પસંદ કરો</option>
+          <option value="પુરુષ">પુરુષ</option>
+          <option value="સ્ત્રી">સ્ત્રી</option>
+          <option value="અન્ય">અન્ય</option>
+        </select>
+      </div>
+      
+      <div class="input-group">
+        <label>પ્રોફાઇલ ફોટો પસંદ કરો</label>
+        <div class="file-box">
+          <input type="file" id="user-photo" accept="image/*" />
+        </div>
+      </div>
+      
+      <div class="input-group">
+        <label>બાયો / પરિચય</label>
+        <textarea id="user-bio" rows="3" placeholder="તમારા વિશે કંઈક ખાસ લખો..."></textarea>
       </div>
 
-      <div class="messages" id="messages"></div>
+      <button class="action-btn" id="create-profile-btn">પ્રોફાઇલ સેવ કરો</button>
+    </div>
 
-      <div class="send-bar">
-        <input type="text" id="msg-input" placeholder="મેસેજ લખો..." />
-        <button id="send-btn">મોકલો</button>
+    <!-- Interactive Chat Room Panel -->
+    <div class="chat-box-wrapper" id="chat-panel">
+      <div class="chat-top-bar">
+        <div class="room-info">💬 MeetFriends ચેટરૂમ</div>
+        <div class="user-badge" id="profile-badge-name">ઓનલાઇન</div>
+      </div>
+      
+      <div class="chat-messages-area" id="chat-stream">
+        <div class="chat-bubble theirs">
+          <span>નમસ્તે! MeetFriends માં તમારું સ્વાગત છે. અહીં તમે મિત્રો સાથે ચેટ કરી શકો છો અને ફોટા મોકલી શકો છો! 🚀</span>
+        </div>
+      </div>
+
+      <div class="chat-bottom-bar">
+        <label class="media-upload-btn" title="ફોટો મોકલો">
+          📷 <input type="file" id="chat-img-input" accept="image/*" style="display: none;" />
+        </label>
+        <input type="text" id="chat-text-input" placeholder="મેસેજ લખો..." />
+        <button class="send-msg-btn" id="send-msg-btn">મોકલો</button>
       </div>
     </div>
   </div>
 
   <script>
-    const myIdEl = document.getElementById('my-id');
-    const localVideo = document.getElementById('localVideo');
-    const remoteVideo = document.getElementById('remoteVideo');
-    const remoteIdInput = document.getElementById('remote-id-input');
-    const callBtn = document.getElementById('call-btn');
-    const messagesEl = document.getElementById('messages');
-    const msgInput = document.getElementById('msg-input');
-    const sendBtn = document.getElementById('send-btn');
+    const createBtn = document.getElementById('create-profile-btn');
+    const profilePanel = document.getElementById('profile-panel');
+    const chatPanel = document.getElementById('chat-panel');
+    const badgeName = document.getElementById('profile-badge-name');
+    const chatStream = document.getElementById('chat-stream');
+    const chatTextInput = document.getElementById('chat-text-input');
+    const sendMsgBtn = document.getElementById('send-msg-btn');
+    const chatImgInput = document.getElementById('chat-img-input');
 
-    let localStream;
-    let peerConn;
+    let activeUserName = "User";
 
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
-      .then(stream => {
-        localStream = stream;
-        localVideo.srcObject = stream;
-      })
-      .catch(err => console.error("Camera error:", err));
-
-    const peer = new Peer();
-
-    peer.on('open', id => {
-      myIdEl.innerText = id;
+    createBtn.addEventListener('click', () => {
+      const nameVal = document.getElementById('user-name').value.trim();
+      if (!nameVal) {
+        alert('કૃપા કરીને તમારું નામ દાખલ કરો!');
+        return;
+      }
+      activeUserName = nameVal;
+      
+      // Switch view from Profile Form to Chat Room
+      profilePanel.style.display = 'none';
+      chatPanel.style.display = 'flex';
+      badgeName.innerText = activeUserName;
+      
+      appendChatBubble(`હું ચેટમાં જોડાઈ ગયો છું! 👋`, 'mine', 'text');
+      setTimeout(() => {
+        appendChatBubble(`અરે ${activeUserName}! આપનું સ્વાગત છે. બોલો કેમ છો?`, 'theirs', 'text');
+      }, 800);
     });
 
-    peer.on('call', call => {
-      call.answer(localStream);
-      call.on('stream', userStream => {
-        remoteVideo.srcObject = userStream;
-      });
+    sendMsgBtn.addEventListener('click', handleUserMessage);
+    chatTextInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') handleUserMessage();
     });
 
-    peer.on('connection', conn => {
-      peerConn = conn;
-      setupChat();
-    });
+    function handleUserMessage() {
+      const text = chatTextInput.value.trim();
+      if (!text) return;
+      appendChatBubble(text, 'mine', 'text');
+      chatTextInput.value = '';
 
-    callBtn.addEventListener('click', () => {
-      const destId = remoteIdInput.value.trim();
-      if (!destId) return alert("કૃપા કરીને મિત્રનો ID દાખલ કરો!");
-
-      const call = peer.call(destId, localStream);
-      call.on('stream', userStream => {
-        remoteVideo.srcObject = userStream;
-      });
-
-      peerConn = peer.connect(destId);
-      setupChat();
-    });
-
-    function setupChat() {
-      peerConn.on('data', data => {
-        addMessage(data, 'other');
-      });
+      // Automated intelligent response simulation
+      setTimeout(() => {
+        appendChatBubble('વાહ સરસ! તમારો મેસેજ મળી ગયો છે 👍', 'theirs', 'text');
+      }, 1000);
     }
 
-    sendBtn.addEventListener('click', sendMessage);
-    msgInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+    // Image sharing handling inside chat
+    chatImgInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          appendChatBubble(event.target.result, 'mine', 'image');
+          setTimeout(() => {
+            appendChatBubble('ખૂબ જ સુંદર ફોટો છે મિત્ર! ✨', 'theirs', 'text');
+          }, 1000);
+        }
+        reader.readAsDataURL(file);
+      }
+    });
 
-    function sendMessage() {
-      const text = msgInput.value.trim();
-      if (!text || !peerConn) return;
-      peerConn.send(text);
-      addMessage(text, 'me');
-      msgInput.value = '';
-    }
+    function appendChatBubble(content, senderType, dataType) {
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${senderType}`;
+      
+      if (dataType === 'text') {
+        const textSpan = document.createElement('span');
+        textSpan.innerText = content;
+        bubble.appendChild(textSpan);
+      } else if (dataType === 'image') {
+        const imgEl = document.createElement('img');
+        imgEl.src = content;
+        bubble.appendChild(imgEl);
+      }
 
-    function addMessage(text, sender) {
-      const div = document.createElement('div');
-      div.className = `msg ${sender}`;
-      div.innerText = text;
-      messagesEl.appendChild(div);
-      messagesEl.scrollTop = messagesEl.scrollHeight;
+      chatStream.appendChild(bubble);
+      chatStream.scrollTop = chatStream.scrollHeight;
     }
   </script>
 </body>
