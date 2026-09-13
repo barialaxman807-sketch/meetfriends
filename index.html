@@ -1,1 +1,135 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MeetFriends - Video Call & Chat</title>
+  <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; display: flex; flex-direction: column; height: 100vh; }
+    header { padding: 12px 16px; background: #1e293b; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; }
+    .status { font-size: 13px; color: #94a3b8; }
+    .peer-id { color: #38bdf8; font-weight: bold; }
+    .main-container { display: flex; flex: 1; flex-direction: column; overflow: hidden; }
+    @media(min-width: 768px) { .main-container { flex-direction: row; } }
+    .video-section { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px; background: #020617; }
+    video { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; background: #1e293b; }
+    .chat-section { flex: 1; display: flex; flex-direction: column; background: #1e293b; border-left: 1px solid #334155; max-width: 100%; }
+    @media(min-width: 768px) { .chat-section { max-width: 360px; } }
+    .connect-bar { padding: 8px 12px; display: flex; gap: 6px; border-bottom: 1px solid #334155; background: #0f172a; }
+    input { flex: 1; padding: 8px 12px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: white; outline: none; }
+    button { padding: 8px 12px; border: none; border-radius: 6px; background: #0284c7; color: white; cursor: pointer; font-weight: bold; }
+    button:hover { background: #0369a1; }
+    .messages { flex: 1; padding: 10px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+    .msg { max-width: 80%; padding: 8px 12px; border-radius: 10px; font-size: 14px; word-break: break-word; }
+    .msg.me { align-self: flex-end; background: #0284c7; }
+    .msg.other { align-self: flex-start; background: #334155; }
+    .send-bar { padding: 10px; display: flex; gap: 6px; border-top: 1px solid #334155; }
+  </style>
+</head>
+<body>
+  <header>
+    <h2>MeetFriends</h2>
+    <div class="status">તમારો ID: <span id="my-id" class="peer-id">જોડાઈ રહ્યું છે...</span></div>
+  </header>
 
+  <div class="main-container">
+    <div class="video-section">
+      <video id="localVideo" autoplay muted playsinline></video>
+      <video id="remoteVideo" autoplay playsinline></video>
+    </div>
+
+    <div class="chat-section">
+      <div class="connect-bar">
+        <input type="text" id="remote-id-input" placeholder="મિત્રનો ID અહીં લખો" />
+        <button id="call-btn">કૉલ કરો</button>
+      </div>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="send-bar">
+        <input type="text" id="msg-input" placeholder="મેસેજ લખો..." />
+        <button id="send-btn">મોકલો</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const myIdEl = document.getElementById('my-id');
+    const localVideo = document.getElementById('localVideo');
+    const remoteVideo = document.getElementById('remoteVideo');
+    const remoteIdInput = document.getElementById('remote-id-input');
+    const callBtn = document.getElementById('call-btn');
+    const messagesEl = document.getElementById('messages');
+    const msgInput = document.getElementById('msg-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    let localStream;
+    let peerConn;
+
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        localStream = stream;
+        localVideo.srcObject = stream;
+      })
+      .catch(err => console.error("Camera error:", err));
+
+    const peer = new Peer();
+
+    peer.on('open', id => {
+      myIdEl.innerText = id;
+    });
+
+    peer.on('call', call => {
+      call.answer(localStream);
+      call.on('stream', userStream => {
+        remoteVideo.srcObject = userStream;
+      });
+    });
+
+    peer.on('connection', conn => {
+      peerConn = conn;
+      setupChat();
+    });
+
+    callBtn.addEventListener('click', () => {
+      const destId = remoteIdInput.value.trim();
+      if (!destId) return alert("કૃપા કરીને મિત્રનો ID દાખલ કરો!");
+
+      const call = peer.call(destId, localStream);
+      call.on('stream', userStream => {
+        remoteVideo.srcObject = userStream;
+      });
+
+      peerConn = peer.connect(destId);
+      setupChat();
+    });
+
+    function setupChat() {
+      peerConn.on('data', data => {
+        addMessage(data, 'other');
+      });
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    msgInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
+
+    function sendMessage() {
+      const text = msgInput.value.trim();
+      if (!text || !peerConn) return;
+      peerConn.send(text);
+      addMessage(text, 'me');
+      msgInput.value = '';
+    }
+
+    function addMessage(text, sender) {
+      const div = document.createElement('div');
+      div.className = `msg ${sender}`;
+      div.innerText = text;
+      messagesEl.appendChild(div);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+  </script>
+</body>
+</html>
